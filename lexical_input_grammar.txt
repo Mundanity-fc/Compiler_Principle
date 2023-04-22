@@ -1,0 +1,57 @@
+# 词法分析器输入文档，三型文法产生式
+# 该产生式应当模拟 Pascal 语法
+# 关键字至少覆盖了条件语句、循环语句、函数等
+# VAR
+# identifier1, identifier2: integer;
+# identifier3: real;
+# identifier4: string;
+# identifier5: boolean;
+# identifier6: complex;
+# function identifier0(identifier7: integer):integer;
+#     var
+#     identifier8: integer;
+#     begin
+#     for identifier8 := 10 to 1 do
+#         begin
+#             if identifier8 >= 0 then identifier8 := identifier8;
+#             else
+#                 begin
+#                     identifier8 := identifier8;
+#                 end;
+#         end;
+#     end;
+#
+# BEGIN
+#     identifier1 := 0
+#     identifier2 := 10
+#     identifier3 := 0.314E+1
+#     identifier6 := 9+2i
+#     repeat
+#         identifier1 := identifier + 1;
+#     until identifier1 == 4;
+#     while identifier2 >= 5 do
+#     begin
+#         identifier2 := identifier2 - 2;
+#     end;
+# END.
+
+# 产生式，需要有 (K)eyword, (I)dentifier, (C)onst, (O)perator, (D)elimiter
+S -> K|I|C|O|D
+
+#
+
+# 标识符产生式 以字母和下划线作为开头
+I -> aI0 | bI0 | cI0 | dI0 | eI0 | fI0 | gI0 | hI0 | iI0 | jI0 | kI0 | lI0 | mI0 | nI0 | oI0 | pI0 | qI0 | rI0 | sI0 | tI0 | uI0 | vI0 | wI0 | xI0 | yI0 | zI0 | AI0 | BI0 | CI0 | DI0 | EI0 | FI0 | GI0 | HI0 | II0 | JI0 | KI0 | LI0 | MI0 | NI0 | OI0 | PI0 | QI0 | RI0 | SI0 | TI0 | UI0 | VI0 | WI0 | XI0 | YI0 | ZI0 | _I0
+I0 -> $ | aI0 | bI0 | cI0 | dI0 | eI0 | fI0 | gI0 | hI0 | iI0 | jI0 | kI0 | lI0 | mI0 | nI0 | oI0 | pI0 | qI0 | rI0 | sI0 | tI0 | uI0 | vI0 | wI0 | xI0 | yI0 | zI0 | AI0 | BI0 | CI0 | DI0 | EI0 | FI0 | GI0 | HI0 | II0 | JI0 | KI0 | LI0 | MI0 | NI0 | OI0 | PI0 | QI0 | RI0 | SI0 | TI0 | UI0 | VI0 | WI0 | XI0 | YI0 | ZI0 | 0I0 | 1I0 | 2I0 | 3I0 | 4I0 | 5I0 | 6I0 | 7I0 | 8I0 | 9I0
+
+# 常量产生式 包括整数 小数 科学记数 虚数
+C -> C0 | +C0 | -C0 |
+C0 -> 0C1 | 1C1 | 2C1 | 3C1 | 4C1 | 5C1 | 6C1 | 7C1 | 8C1 | 9C1
+C1 -> $ | 0C0 | 1C0 | 2C0 | 3C0 | 4C0 | 5C0 | 6C0 | 7C0 | 8C0 | 9C0
+
+# 运算符产生式 + - * / = > >= < <= ! !=
+O -> + | - | * | / | = | >O0 | <O0 | !O0
+O0 -> $ | =
+
+# 界符产生式
+D -> begin | end | BEGIN | END | ( | ) | ; | . | ,

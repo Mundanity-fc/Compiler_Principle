@@ -2,5 +2,6 @@
 #include "lexical_analysis.h"
 
 int main() {
-    return test();
+    Analyser NFA("lexical_input_grammar.txt");
+    NFA.generate();
 }

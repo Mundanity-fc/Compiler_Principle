@@ -6,7 +6,34 @@
  * */
 
 #include "lexical_analysis.h"
+#include <string>
+#include <fstream>
+#include <iostream>
 
-int test(){
-    return 0;
+Analyser::Analyser(std::string filename){
+    this->grammar_file = filename;
+}
+
+Analyser::~Analyser() {}
+
+void Analyser::generate() {
+    // 加载产生式文件
+    std::ifstream generate;
+    generate.open(this->grammar_file);
+    if(!generate){
+        std::cout << "No such File" << std::endl;
+    }
+
+    // 按行读取产生式文件
+    std::string line;
+    while (getline(generate, line)){
+        // 忽略注释
+        if(line[0] == '#')
+            continue;
+        // 忽略空行
+        if(line.empty())
+            continue;
+        std::cout << line << std::endl;
+    }
+    std::cout << std::endl;
 }
