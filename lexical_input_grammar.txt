@@ -1,3 +1,4 @@
+# Encoding with UTF-8
 # 词法分析器输入文档，三型文法产生式
 # 该产生式应当模拟 Pascal 语法
 # 关键字至少覆盖了条件语句、循环语句、函数等
@@ -35,10 +36,8 @@
 #     end;
 # END.
 
-# 产生式，需要有 (K)eyword, (I)dentifier, (C)onst, (O)perator, (D)elimiter
-S -> K|I|C|O|D
-
-#
+# 产生式，需要有 (K)eyword, (I)dentifier, (C)onst, (O)perator, (D)elimiter，其中，关键字可以作为保留标识符，于分析源码的时候再次判断
+S -> I|C|O|D
 
 # 标识符产生式 以字母和下划线作为开头
 I -> aI0 | bI0 | cI0 | dI0 | eI0 | fI0 | gI0 | hI0 | iI0 | jI0 | kI0 | lI0 | mI0 | nI0 | oI0 | pI0 | qI0 | rI0 | sI0 | tI0 | uI0 | vI0 | wI0 | xI0 | yI0 | zI0 | AI0 | BI0 | CI0 | DI0 | EI0 | FI0 | GI0 | HI0 | II0 | JI0 | KI0 | LI0 | MI0 | NI0 | OI0 | PI0 | QI0 | RI0 | SI0 | TI0 | UI0 | VI0 | WI0 | XI0 | YI0 | ZI0 | _I0
