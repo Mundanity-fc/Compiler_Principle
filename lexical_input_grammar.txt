@@ -37,20 +37,34 @@
 # END.
 
 # 产生式，需要有 (K)eyword, (I)dentifier, (C)onst, (O)perator, (D)elimiter，其中，关键字可以作为保留标识符，于分析源码的时候再次判断
-S -> I|C|O|D
+# 标识符判别
+# 由字母或下划线开头
+I -> <alphabet>I0 | _I1
+# 可有一位字母，或者后跟字母、数字重复、或单独数字、字母一次
+I0 -> ε | <alphabet>I0 | <number> I0 | <alphabet> | <number>
+# 下划线开头后需跟一个字母，之后按上式规则
+I1 -> <alphabet>I0
 
-# 标识符产生式 以字母和下划线作为开头
-I -> aI0 | bI0 | cI0 | dI0 | eI0 | fI0 | gI0 | hI0 | iI0 | jI0 | kI0 | lI0 | mI0 | nI0 | oI0 | pI0 | qI0 | rI0 | sI0 | tI0 | uI0 | vI0 | wI0 | xI0 | yI0 | zI0 | AI0 | BI0 | CI0 | DI0 | EI0 | FI0 | GI0 | HI0 | II0 | JI0 | KI0 | LI0 | MI0 | NI0 | OI0 | PI0 | QI0 | RI0 | SI0 | TI0 | UI0 | VI0 | WI0 | XI0 | YI0 | ZI0 | _I0
-I0 -> $ | aI0 | bI0 | cI0 | dI0 | eI0 | fI0 | gI0 | hI0 | iI0 | jI0 | kI0 | lI0 | mI0 | nI0 | oI0 | pI0 | qI0 | rI0 | sI0 | tI0 | uI0 | vI0 | wI0 | xI0 | yI0 | zI0 | AI0 | BI0 | CI0 | DI0 | EI0 | FI0 | GI0 | HI0 | II0 | JI0 | KI0 | LI0 | MI0 | NI0 | OI0 | PI0 | QI0 | RI0 | SI0 | TI0 | UI0 | VI0 | WI0 | XI0 | YI0 | ZI0 | 0I0 | 1I0 | 2I0 | 3I0 | 4I0 | 5I0 | 6I0 | 7I0 | 8I0 | 9I0
+# 常量判别
+# 必须由数字开头
+C -> <number>C0
+# 数字后跟数字、或小数点、或科学计数、或虚数、或结束
+C0 -> <number>C0 | .C1 | eC3 | EC3 | i | ε
+# 小数点后必须接一位数字
+C1 -> <number>C2
+# 小数点后一位数字结束后可继续、接科学计数、或虚数、或结束
+C2 -> <number>C2 | eC3 | EC3 | i | ε
+# 科学计数后可接纯数字或负号
+C3 -> <number>C4 | -C5
+# 科学计数第一位数字后可继续跟数字或结束
+C4 -> <number>C4 | ε
+# 科学计数的负号后至少跟一个数字，之后按上式规则
+C5 -> <number>C4
 
-# 常量产生式 包括整数 小数 科学记数 虚数
-C -> C0 | +C0 | -C0 |
-C0 -> 0C1 | 1C1 | 2C1 | 3C1 | 4C1 | 5C1 | 6C1 | 7C1 | 8C1 | 9C1
-C1 -> $ | 0C0 | 1C0 | 2C0 | 3C0 | 4C0 | 5C0 | 6C0 | 7C0 | 8C0 | 9C0
+# 操作符判别，无特殊
+O -> +O1 | -O1 | *O1 | /O1 | >O1 | <O1 | =O1
+O1 -> = | ε
 
-# 运算符产生式 + - * / = > >= < <= ! !=
-O -> + | - | * | / | = | >O0 | <O0 | !O0
-O0 -> $ | =
 
-# 界符产生式
-D -> ( | ) | ; | . | ,
+# 界符判别，无特殊
+D -> ( | ) | ; | .
