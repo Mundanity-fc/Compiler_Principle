@@ -41,9 +41,9 @@
 # 由字母或下划线开头
 I -> <alphabet>I0 | _I1
 # 可有一位字母，或者后跟字母、数字重复、或单独数字、字母一次
-I0 -> ε | <alphabet>I0 | <number> I0 | <alphabet> | <number>
+I0 -> ε | <alphabet>I0 | <number>I0 | <alphabet> | <number>
 # 下划线开头后需跟一个字母，之后按上式规则
-I1 -> <alphabet>I0
+I1 -> <alphabet>I0 | <number>I0
 
 # 常量判别
 # 必须由数字开头
@@ -62,7 +62,7 @@ C4 -> <number>C4 | ε
 C5 -> <number>C4
 
 # 操作符判别，无特殊
-O -> +O1 | -O1 | *O1 | /O1 | >O1 | <O1 | =O1
+O -> +O1 | -O1 | *O1 | /O1 | >O1 | <O1 | =O1 | :O1
 O1 -> = | ε
 
 

@@ -1,0 +1,33 @@
+VAR
+identifier1, identifier2: integer;
+identifier3: real;
+identifier4: string;
+identifier5: boolean;
+identifier6: complex;
+function identifier0(identifier7: integer):integer;
+    var
+    identifier8: integer;
+    begin
+    for identifier8 := 10 to 1 do
+        begin
+            if identifier8 >= 0 then identifier8 := identifier8;
+            else
+                begin
+                    identifier8 := identifier8;
+                end;
+        end;
+    end;
+
+BEGIN
+    identifier1 := 0
+    identifier2 := 10
+    identifier3 := 0.314E+1
+    identifier6 := 9+2i
+    repeat
+        identifier1 := identifier + 1;
+    until identifier1 == 4;
+    while identifier2 >= 5 do
+    begin
+        identifier2 := identifier2 - 2;
+    end;
+END.

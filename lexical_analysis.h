@@ -44,8 +44,13 @@ struct Grammar{
     std::vector<std::string> Z;
 };
 
+struct CheckMap{
+    std::vector<Record> InitialNode;
+    std::vector<Record> ProcessNode;
+};
+
 // 分析器类定义
-class Analyser{
+class Lexical_Analysis{
 private:
     // 文法产生式位置
     std::string grammar_file;
@@ -56,22 +61,24 @@ private:
     // NFA 的图
     std::vector<Record> Net;
 
+    //
+    CheckMap Map;
 
 public:
     // 构造函数
-    Analyser(std::string filename);
+    Lexical_Analysis(std::string filename);
 
     // 析构函数
-    ~Analyser();
+    ~Lexical_Analysis();
 
     // NFA 生成
     void generate();
 
-    // DFA 生成
-    void DFA();
+    // 打印 NFA
+    void print_NFA();
 
     // token 检查
-    void check(std::string line);
+    void check(std::string filename);
 
     // 产生式分割，将产生式划分为左部与右部
     std::vector<std::string> divide_line(const std::string& production);
@@ -82,5 +89,12 @@ public:
     //清除多余空格
     static void clean_space(std::string &str);
 
+    // 是否在 VT 集合中
+    bool is_in_VT(std::string target);
+
+    // 是否在 VN 集合中
+    bool is_in_VN(std::string target);
+
+    std::string search_next_node(std::string target, std::string current_node,std::vector<Record> list);
 };
 

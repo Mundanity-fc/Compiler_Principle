@@ -1,0 +1,7 @@
+1 VAR keyword
+2 identifier1 identifier
+2 , delimiter
+2 identifier2 identifier
+2 : operator
+2 integer keyword
+2 ; delimiter

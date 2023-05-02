@@ -3,4 +3,4 @@ project(Compiler_Principle)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(Compiler_Principle main.cpp lexical_analysis.cpp)
+add_executable(Compiler_Principle main.cpp lexical_analysis.cpp grammar_analysis.cpp grammar_analysis.h)
