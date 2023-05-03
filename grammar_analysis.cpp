@@ -438,21 +438,23 @@ void Grammar_Analysis::do_check() {
             std::string str;
             if (std::isalpha(compare))
                 str = "a";
-            if (std::isdigit(compare)){
-                str = "n";
-                if (j == 0){
-                    invalid_bit = -1;
-                    message = "第" + std::to_string(j) + "位错误";
-                    break;
-                }
-            }
-            for (int k = 0; k < this->VT.size(); ++k) {
-                if (str == this->VT[k])
+            else if (std::isdigit(compare)){
+                    str = "n";
+                    if (j == 0){
+                        invalid_bit = -1;
+                        message = "第" + std::to_string(j) + "位错误";
+                        break;
+                    }
+            } else
+                str = std::to_string(compare);
+            for (const auto & k : this->VT) {
+                if (str == k)
                     bit_valid = true;
             }
             if (!bit_valid)
             {
-                message = "第" + std::to_string(j) + "位错误";
+                if (message.size() == 0)
+                    message = "第" + std::to_string(j) + "位错误";
                 invalid_bit--;
             }
         }
@@ -470,7 +472,7 @@ void Grammar_Analysis::do_check() {
 // 打印结果
 void Grammar_Analysis::print_result() {
     for (int i = 0; i < this->Results.size(); ++i)
-        std::cout << this->Results[i].name << " " << this->Results[i].result << std::endl;
+        std::cout << this->Results[i].name << " " << this->Results[i].result << " " << this->Results[i].message << std::endl;
 }
 
 // 保存结果到文件
@@ -478,6 +480,6 @@ void Grammar_Analysis::save_result() {
     std::ofstream output;
     output.open("002_output_validation.txt");
     for (auto & i : this->Results) {
-        output << i.name << " " << i.result << std::endl;
+        output << i.name << " " << i.result << " " << i.message << std::endl;
     }
 }
