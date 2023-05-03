@@ -330,13 +330,6 @@ void Lexical_Analysis::const_search_queue(char initial, std::string &compare, st
             if (!this->is_contain("ε", available_token))
                 is_failed = true;
         }
-//        if (line[index+1] == '='){
-//            finish += line[index+1];
-//            index++;
-//            is_queue_built = true;
-//        } else{
-//            is_queue_built = true;
-//        }
     }
     index++;
     compare.clear();
