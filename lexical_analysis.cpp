@@ -131,7 +131,6 @@ void Lexical_Analysis::check(std::string filename) {
     std::string start;
     std::string current_node;
     std::string type;
-    bool is_searched = true;
     while (getline(sourcecode, line)){
         line_number++;
         int index = 0;
@@ -152,40 +151,25 @@ void Lexical_Analysis::check(std::string filename) {
             else
                 compare = line.substr(index, 1);
 
-            // 寻找初态
+            // 寻找初始态
             if(current_node.empty()){
                 for (int i = 0; i < this->Map.InitialNode.size(); ++i) {
                     if (this->Map.InitialNode[i].edge == compare){
                         start = Map.InitialNode[i].start;
                         current_node = Map.InitialNode[i].end;
-                        is_searched = false;
                         break;
                     }
                 }
             }
 
-            // 进行图搜索
-            while (index < max_length && (!is_searched)){
-                index++;
-                // 确认新比较符号
-                if (std::isalpha(line[index]))
-                    compare = "<alphabet>";
-                else if (std::isdigit(line[index]))
-                    compare = "<number>";
-                else if (line[index] == ' ' || line[index] == 0)
-                    compare = "ε";
-                else
-                    compare = line.substr(index, 1);
-                // 以新的比较符号
-                current_node = this->search_next_node(compare, current_node, this->Map.ProcessNode);
-                if(current_node == "none"){
-                    type = "错误";
-                    current_node.clear();
-                    is_searched = true;
-                }
-            }
-
-            index++;
+            if (start == "I")
+                this->identifier_search_queue(line[index], compare, current_node, index, max_length, line, line_number);
+            else if (start == "D")
+                this->delimiter_search_queue(line[index], compare, current_node, index, max_length, line, line_number);
+            else if (start == "O")
+                this->operator_search_queue(line[index], compare, current_node, index, max_length, line, line_number);
+            else
+                this->const_search_queue(line[index], compare, current_node, index, max_length, line, line_number);
         }
         std::cout<<line<<std::endl;
     }
@@ -245,12 +229,159 @@ bool Lexical_Analysis::is_in_VN(std::string target){
     return false;
 }
 
-std::string Lexical_Analysis::search_next_node(std::string target, std::string current_node, std::vector<Record> list) {
-    std::string result = "none";
-    for (int i = 0; i < list.size(); ++i) {
-        if (list[i].start == current_node)
-            if (list[i].edge == target)
-                result = list[i].end;
+void
+Lexical_Analysis::identifier_search_queue(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number) {
+    std::vector<char> queue;
+    std::string finish;
+    bool is_queue_built = false;
+    finish += initial;
+    while (index < max_length-1 && !is_queue_built){
+        if (std::isalpha(line[index+1]) || std::isdigit(line[index+1])){
+            finish += line[index+1];
+            index++;
+        } else{
+            is_queue_built = true;
+        }
     }
-    return result;
+    index++;
+    compare.clear();
+    current_node.clear();
+    Result new_result;
+    new_result.line_number = line_number;
+    new_result.token = finish;
+    if (this->is_reserved(finish))
+        new_result.type = "关键字";
+    else
+        new_result.type = "标识符";
+    this->Result_list.push_back(new_result);
 }
+
+void Lexical_Analysis::delimiter_search_queue(char initial, std::string &compare, std::string &current_node, int &index,int max_length, std::string line, int line_number) {
+    std::string finish;
+    finish += initial;
+    index++;
+    compare.clear();
+    current_node.clear();
+    Result new_result;
+    new_result.line_number = line_number;
+    new_result.token = finish;
+    new_result.type = "界　符";
+    this->Result_list.push_back(new_result);
+}
+
+void Lexical_Analysis::operator_search_queue(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number) {
+    std::vector<char> queue;
+    std::string finish;
+    bool is_queue_built = false;
+    finish += initial;
+    while (index < max_length-1 && !is_queue_built){
+        if (line[index+1] == '='){
+            finish += line[index+1];
+            index++;
+            is_queue_built = true;
+        } else{
+            is_queue_built = true;
+        }
+    }
+    index++;
+    compare.clear();
+    current_node.clear();
+    Result new_result;
+    new_result.line_number = line_number;
+    new_result.token = finish;
+    new_result.type = "操作符";
+    this->Result_list.push_back(new_result);
+}
+
+void Lexical_Analysis::const_search_queue(char initial, std::string &compare, std::string &current_node, int &index,int max_length, std::string line, int line_number) {
+    std::string finish;
+    bool is_queue_built = false;
+    finish += initial;
+    std::vector<std::string> available_token;
+    bool is_failed = false;
+    available_token = this->get_available_token(current_node);
+    // 当只有一个空串边时，直接结束判断。
+    if (available_token.size() == 1)
+        if (available_token[0] == "terminate")
+            is_queue_built = true;
+    while (index < max_length-1 && !is_queue_built){
+        // 判断下一位输入的类型
+        std::string next = line.substr(index+1, 1);
+        if (std::isdigit(line[index+1]))
+            next = "<number>";
+        else
+            next = line.substr(index+1, 1);
+        //
+        if(is_contain(next, available_token)){
+          finish += line[index+1];
+          index++;
+          // 更新目前节点
+          for (int i = 0; i < this->Map.ProcessNode.size(); ++i) {
+              if (this->Map.ProcessNode[i].edge == next && this->Map.ProcessNode[i].start == current_node){
+                  current_node = Map.ProcessNode[i].end;
+                  break;
+              }
+          }
+          // 更新可用列表
+          available_token = this->get_available_token(current_node);
+        } else{
+            is_queue_built = true;
+            // 当下一位匹配出错且目前节点无空串边，则目前的匹配失败
+            if (!this->is_contain("ε", available_token))
+                is_failed = true;
+        }
+//        if (line[index+1] == '='){
+//            finish += line[index+1];
+//            index++;
+//            is_queue_built = true;
+//        } else{
+//            is_queue_built = true;
+//        }
+    }
+    index++;
+    compare.clear();
+    current_node.clear();
+    Result new_result;
+    new_result.line_number = line_number;
+    new_result.token = finish;
+    if (is_failed)
+        new_result.type = "错误类型";
+    else
+        new_result.type = "常量";
+    this->Result_list.push_back(new_result);
+}
+
+bool Lexical_Analysis::is_reserved(std::string target) {
+    for (const auto & i : this->Reserved_Identifier) {
+        if (i == target)
+            return true;
+    }
+    return false;
+}
+
+std::vector<std::string> Lexical_Analysis::get_available_token(std::string current_node) {
+    std::vector<std::string> list;
+    for (int i = 0; i < this->Map.ProcessNode.size(); ++i) {
+        if (this->Map.ProcessNode[i].start == current_node)
+            list.push_back(this->Map.ProcessNode[i].edge);
+    }
+    return list;
+}
+
+bool Lexical_Analysis::is_contain(std::string content, std::vector<std::string> list) {
+    for (const auto & i : list) {
+        if (i == content)
+            return true;
+    }
+    return false;
+}
+
+void Lexical_Analysis::print_result() {
+    for (auto & i : this->Result_list) {
+        std::cout << i.line_number << " " << i.type << " " << i.token << std::endl;
+    }
+}
+
+
+
+
