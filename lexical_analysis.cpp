@@ -161,9 +161,10 @@ void Lexical_Analysis::check(std::string filename) {
                     }
                 }
             }
-            this->start_search(line[index], compare, current_node, index, max_length, line, line_number, start);
+
+            // 进行判断
+            this->start_search(line[index], current_node, index, max_length, line, line_number, start);
         }
-        std::cout<<line<<std::endl;
     }
 }
 
@@ -205,6 +206,7 @@ void Lexical_Analysis::clean_space(std::string &str) {
     }
 }
 
+// 检查元素是否在 VT 中
 bool Lexical_Analysis::is_in_VT(std::string target){
     for(const auto & i : this->G.VT){
         if (i == target)
@@ -213,6 +215,7 @@ bool Lexical_Analysis::is_in_VT(std::string target){
     return false;
 }
 
+// 检查元素是否在 VN 中
 bool Lexical_Analysis::is_in_VN(std::string target){
     for(const auto & i : this->G.VN){
         if (i == target)
@@ -221,35 +224,44 @@ bool Lexical_Analysis::is_in_VN(std::string target){
     return false;
 }
 
-void
-Lexical_Analysis::start_search(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number, std::string start) {
-    std::string finish;
+// 依照 NFA 的图进行检查
+void Lexical_Analysis::start_search(char initial, std::string &current_node, int &index, int max_length, std::string line, int line_number, std::string start) {
+    // 检查终止 flag
     bool is_queue_built = false;
-    finish += initial;
-    std::vector<std::string> available_token;
+    // token 错误 flag
     bool is_failed = false;
+    // 先将第一个字符加入到结果串中
+    std::string finish;
+    finish += initial;
+    // 获取目前节点所有可用的边
+    std::vector<std::string> available_token;
     available_token = this->get_available_token(current_node);
     // 当只有一个空串边时，直接结束判断。
     if (available_token.size() == 1)
         if (available_token[0] == "terminate")
             is_queue_built = true;
-    //当目前为终止节点时
+    // 当目前为终止节点时，直接结束判断
     if (current_node == "terminate")
         is_queue_built = true;
+
+    // 开始循环检查
     while (index < max_length-1 && !is_queue_built){
         // 判断下一位输入的类型
         std::string next = line.substr(index+1, 1);
         if (std::isdigit(line[index+1]))
             next = "<number>";
         else if (std::isalpha(line[index+1]))
+            // 对于常量检查时，字母需要额外定义
             if (start == "C" && (line[index+1] == 'e' || line[index+1] == 'E' || line[index+1] == 'i'))
                 next = line.substr(index+1, 1);
             else
                 next = "<alphabet>";
         else
             next = line.substr(index+1, 1);
-        //
+
+        // 检查下一位是否在可用边列表里
         if(is_contain(next, available_token)){
+            // 下一位可用，塞入结果串中
             finish += line[index+1];
             index++;
             // 更新目前节点
@@ -260,22 +272,25 @@ Lexical_Analysis::start_search(char initial, std::string &compare, std::string &
                 }
             }
 
-            //
+            // 新节点是结束节点，则直接结束
             if (current_node == "terminate")
                 is_queue_built = true;
 
-            // 更新可用列表
+            // 更新可用边列表
             available_token = this->get_available_token(current_node);
         } else{
+            // 下一位不可用，则结束搜索
             is_queue_built = true;
-            // 当下一位匹配出错且目前节点无空串边，则目前的匹配失败
+            // 当下一位不可用而且目前节点无空串边，则说明目前的匹配失败
             if (!this->is_contain("ε", available_token))
                 is_failed = true;
         }
     }
+    // 行检测标记右移一位
     index++;
-    compare.clear();
+    // 清楚目前节点（应该可删，因为在上面有更新）
     current_node.clear();
+    // 新建一条结果记录
     Result new_result;
     new_result.line_number = line_number;
     new_result.token = finish;
@@ -296,10 +311,11 @@ Lexical_Analysis::start_search(char initial, std::string &compare, std::string &
         if(start =="O")
             new_result.type = "操作符";
     }
-
+    // 结果塞入到结果列表中
     this->Result_list.push_back(new_result);
 }
 
+// 检查标识符是否为表留关键字
 bool Lexical_Analysis::is_reserved(std::string target) {
     for (const auto & i : this->Reserved_Identifier) {
         if (i == target)
@@ -308,6 +324,7 @@ bool Lexical_Analysis::is_reserved(std::string target) {
     return false;
 }
 
+// 获取所有可用的边
 std::vector<std::string> Lexical_Analysis::get_available_token(std::string current_node) {
     std::vector<std::string> list;
     for (int i = 0; i < this->Map.ProcessNode.size(); ++i) {
@@ -317,6 +334,7 @@ std::vector<std::string> Lexical_Analysis::get_available_token(std::string curre
     return list;
 }
 
+// 检查 content 内容是否在 list 当中
 bool Lexical_Analysis::is_contain(std::string content, std::vector<std::string> list) {
     for (const auto & i : list) {
         if (i == content)
@@ -325,10 +343,16 @@ bool Lexical_Analysis::is_contain(std::string content, std::vector<std::string> 
     return false;
 }
 
+// 打印结果
 void Lexical_Analysis::print_result() {
     for (auto & i : this->Result_list) {
         std::cout << i.line_number << " " << i.type << " " << i.token << std::endl;
     }
+}
+
+// 保存结果到文件
+void Lexical_Analysis::save_result() {
+
 }
 
 

@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 
+// 一个边的记录
 struct Record{
     std::string start;
     std::string end;
@@ -28,11 +29,13 @@ struct Grammar{
     std::vector<std::string> Z;
 };
 
+// 将 NFA 的图分为初始节点边与过程节点边两部分
 struct CheckMap{
     std::vector<Record> InitialNode;
     std::vector<Record> ProcessNode;
 };
 
+// 一个判断的结果
 struct Result{
     int line_number;
     std::string type;
@@ -111,18 +114,21 @@ public:
     bool is_in_VN(std::string target);
 
     // 查询队列
-    void start_search(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number, std::string start);
+    void start_search(char initial, std::string &current_node, int &index, int max_length, std::string line, int line_number, std::string start);
 
     // 是否为表留标识符
     bool is_reserved(std::string target);
 
-    //
+    // 获取一个节点所有可能的边
     std::vector<std::string> get_available_token(std::string current_node);
 
-    //
+    // content 是否包含在 list当中
     bool is_contain(std::string content, std::vector<std::string> list);
 
     // 打印结果
     void print_result();
+
+    // 输出结果
+    void save_result();
 };
 
