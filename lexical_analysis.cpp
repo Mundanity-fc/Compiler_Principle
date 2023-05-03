@@ -161,15 +161,7 @@ void Lexical_Analysis::check(std::string filename) {
                     }
                 }
             }
-
-            if (start == "I")
-                this->identifier_search_queue(line[index], compare, current_node, index, max_length, line, line_number);
-            else if (start == "D")
-                this->delimiter_search_queue(line[index], compare, current_node, index, max_length, line, line_number);
-            else if (start == "O")
-                this->operator_search_queue(line[index], compare, current_node, index, max_length, line, line_number);
-            else
-                this->const_search_queue(line[index], compare, current_node, index, max_length, line, line_number);
+            this->start_search(line[index], compare, current_node, index, max_length, line, line_number, start);
         }
         std::cout<<line<<std::endl;
     }
@@ -230,70 +222,7 @@ bool Lexical_Analysis::is_in_VN(std::string target){
 }
 
 void
-Lexical_Analysis::identifier_search_queue(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number) {
-    std::vector<char> queue;
-    std::string finish;
-    bool is_queue_built = false;
-    finish += initial;
-    while (index < max_length-1 && !is_queue_built){
-        if (std::isalpha(line[index+1]) || std::isdigit(line[index+1])){
-            finish += line[index+1];
-            index++;
-        } else{
-            is_queue_built = true;
-        }
-    }
-    index++;
-    compare.clear();
-    current_node.clear();
-    Result new_result;
-    new_result.line_number = line_number;
-    new_result.token = finish;
-    if (this->is_reserved(finish))
-        new_result.type = "关键字";
-    else
-        new_result.type = "标识符";
-    this->Result_list.push_back(new_result);
-}
-
-void Lexical_Analysis::delimiter_search_queue(char initial, std::string &compare, std::string &current_node, int &index,int max_length, std::string line, int line_number) {
-    std::string finish;
-    finish += initial;
-    index++;
-    compare.clear();
-    current_node.clear();
-    Result new_result;
-    new_result.line_number = line_number;
-    new_result.token = finish;
-    new_result.type = "界　符";
-    this->Result_list.push_back(new_result);
-}
-
-void Lexical_Analysis::operator_search_queue(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number) {
-    std::vector<char> queue;
-    std::string finish;
-    bool is_queue_built = false;
-    finish += initial;
-    while (index < max_length-1 && !is_queue_built){
-        if (line[index+1] == '='){
-            finish += line[index+1];
-            index++;
-            is_queue_built = true;
-        } else{
-            is_queue_built = true;
-        }
-    }
-    index++;
-    compare.clear();
-    current_node.clear();
-    Result new_result;
-    new_result.line_number = line_number;
-    new_result.token = finish;
-    new_result.type = "操作符";
-    this->Result_list.push_back(new_result);
-}
-
-void Lexical_Analysis::const_search_queue(char initial, std::string &compare, std::string &current_node, int &index,int max_length, std::string line, int line_number) {
+Lexical_Analysis::start_search(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number, std::string start) {
     std::string finish;
     bool is_queue_built = false;
     finish += initial;
@@ -304,26 +233,39 @@ void Lexical_Analysis::const_search_queue(char initial, std::string &compare, st
     if (available_token.size() == 1)
         if (available_token[0] == "terminate")
             is_queue_built = true;
+    //当目前为终止节点时
+    if (current_node == "terminate")
+        is_queue_built = true;
     while (index < max_length-1 && !is_queue_built){
         // 判断下一位输入的类型
         std::string next = line.substr(index+1, 1);
         if (std::isdigit(line[index+1]))
             next = "<number>";
+        else if (std::isalpha(line[index+1]))
+            if (start == "C" && (line[index+1] == 'e' || line[index+1] == 'E' || line[index+1] == 'i'))
+                next = line.substr(index+1, 1);
+            else
+                next = "<alphabet>";
         else
             next = line.substr(index+1, 1);
         //
         if(is_contain(next, available_token)){
-          finish += line[index+1];
-          index++;
-          // 更新目前节点
-          for (int i = 0; i < this->Map.ProcessNode.size(); ++i) {
-              if (this->Map.ProcessNode[i].edge == next && this->Map.ProcessNode[i].start == current_node){
-                  current_node = Map.ProcessNode[i].end;
-                  break;
-              }
-          }
-          // 更新可用列表
-          available_token = this->get_available_token(current_node);
+            finish += line[index+1];
+            index++;
+            // 更新目前节点
+            for (int i = 0; i < this->Map.ProcessNode.size(); ++i) {
+                if (this->Map.ProcessNode[i].edge == next && this->Map.ProcessNode[i].start == current_node){
+                    current_node = Map.ProcessNode[i].end;
+                    break;
+                }
+            }
+
+            //
+            if (current_node == "terminate")
+                is_queue_built = true;
+
+            // 更新可用列表
+            available_token = this->get_available_token(current_node);
         } else{
             is_queue_built = true;
             // 当下一位匹配出错且目前节点无空串边，则目前的匹配失败
@@ -339,8 +281,22 @@ void Lexical_Analysis::const_search_queue(char initial, std::string &compare, st
     new_result.token = finish;
     if (is_failed)
         new_result.type = "错误类型";
-    else
-        new_result.type = "常量";
+    else{
+        if(start =="I") {
+            if(is_reserved(finish))
+            {
+                new_result.type = "关键字";
+            }else
+                new_result.type = "标识符";
+        }
+        if(start =="D")
+            new_result.type = "界符";
+        if(start =="C")
+            new_result.type = "常量";
+        if(start =="O")
+            new_result.type = "操作符";
+    }
+
     this->Result_list.push_back(new_result);
 }
 

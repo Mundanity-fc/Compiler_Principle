@@ -110,17 +110,8 @@ public:
     // 是否在 VN 集合中
     bool is_in_VN(std::string target);
 
-    // 标识符查询队列
-    void identifier_search_queue(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number);
-
-    // 界符查找队队列
-    void delimiter_search_queue(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number);
-
-    // 操作符查找队列
-    void operator_search_queue(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number);
-
-    // 常量查找队列
-    void const_search_queue(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number);
+    // 查询队列
+    void start_search(char initial, std::string &compare, std::string &current_node, int &index, int max_length, std::string line, int line_number, std::string start);
 
     // 是否为表留标识符
     bool is_reserved(std::string target);
