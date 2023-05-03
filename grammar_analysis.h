@@ -7,6 +7,7 @@
 struct Validation{
     std::string name;
     std::string result;
+    std::string message;
 };
 
 class Grammar_Analysis {

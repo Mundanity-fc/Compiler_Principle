@@ -428,6 +428,7 @@ bool Grammar_Analysis::is_has_common(std::vector<std::string> A, std::vector<std
 // 进行 token 检查
 void Grammar_Analysis::do_check() {
     for (int i = 0; i < token_list.size(); ++i) {
+        std::string message;
         int invalid_bit = 0;
         for (int j = 0; j < token_list[i].size(); ++j) {
             // 位合法检验 flag
@@ -441,6 +442,7 @@ void Grammar_Analysis::do_check() {
                 str = "n";
                 if (j == 0){
                     invalid_bit = -1;
+                    message = "第" + std::to_string(j) + "位错误";
                     break;
                 }
             }
@@ -449,7 +451,10 @@ void Grammar_Analysis::do_check() {
                     bit_valid = true;
             }
             if (!bit_valid)
+            {
+                message = "第" + std::to_string(j) + "位错误";
                 invalid_bit--;
+            }
         }
         Validation new_result;
         new_result.name = this->token_list[i];
@@ -457,6 +462,7 @@ void Grammar_Analysis::do_check() {
             new_result.result = "YES";
         else
             new_result.result = "NO";
+        new_result.message = message;
         this->Results.push_back(new_result);
     }
 }
