@@ -26,6 +26,7 @@ void Lexical_Analysis::generate() {
     generate.open(this->grammar_file);
     if(!generate){
         std::cout << "No such File" << std::endl;
+        exit(1);
     }
     // 按行读取产生式文件
     std::string line;
@@ -100,6 +101,7 @@ void Lexical_Analysis::generate() {
                 this->G.VT.push_back(right.substr(0,1));
         }
     }
+    generate.close();
 
     //
     for(int i = 0; i < this->Net.size(); i++)
@@ -126,6 +128,7 @@ void Lexical_Analysis::check(std::string filename) {
     sourcecode.open(filename);
     if(!sourcecode){
         std::cout << "No such File" << std::endl;
+        exit(1);
     }
     std::string line;
     int line_number = 0;
@@ -167,6 +170,7 @@ void Lexical_Analysis::check(std::string filename) {
             this->start_search(line[index], current_node, index, max_length, line, line_number, start);
         }
     }
+    sourcecode.close();
 }
 
 // 产生式分割，将产生式划分为左部与右部

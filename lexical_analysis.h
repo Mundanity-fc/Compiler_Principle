@@ -82,21 +82,6 @@ private:
             "repeat",
             "until",
     };
-public:
-    // 构造函数
-    Lexical_Analysis(std::string filename);
-
-    // 析构函数
-    ~Lexical_Analysis();
-
-    // NFA 生成
-    void generate();
-
-    // 打印 NFA
-    void print_NFA();
-
-    // token 检查
-    void check(std::string filename);
 
     // 产生式分割，将产生式划分为左部与右部
     std::vector<std::string> divide_line(const std::string& production);
@@ -124,6 +109,22 @@ public:
 
     // content 是否包含在 list当中
     bool is_contain(std::string content, std::vector<std::string> list);
+
+public:
+    // 构造函数
+    Lexical_Analysis(std::string filename);
+
+    // 析构函数
+    ~Lexical_Analysis();
+
+    // NFA 生成
+    void generate();
+
+    // 打印 NFA
+    void print_NFA();
+
+    // token 检查
+    void check(std::string filename);
 
     // 打印结果
     void print_result();
