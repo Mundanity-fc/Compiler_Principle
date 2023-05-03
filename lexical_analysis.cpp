@@ -113,8 +113,9 @@ void Lexical_Analysis::generate() {
 
 // 打印 NFA
 void Lexical_Analysis::print_NFA() {
+    std::cout << "目前的 NFA 节点与边情况如下：" << std::endl;
     for (auto & i : this->Net) {
-        std::cout << i.start << "--" << i.edge << "->" << i.end << std::endl;
+        std::cout << i.start << " -- " << i.edge << " -> " << i.end << std::endl;
     }
 }
 
@@ -345,6 +346,7 @@ bool Lexical_Analysis::is_contain(std::string content, std::vector<std::string> 
 
 // 打印结果
 void Lexical_Analysis::print_result() {
+    std::cout << "词法分析结果如下：" << std::endl;
     for (auto & i : this->Result_list) {
         std::cout << i.line_number << " " << i.type << " " << i.token << std::endl;
     }
@@ -352,7 +354,11 @@ void Lexical_Analysis::print_result() {
 
 // 保存结果到文件
 void Lexical_Analysis::save_result() {
-
+    std::ofstream output;
+    output.open("001_output_token.txt");
+    for (auto & i : this->Result_list) {
+        output << i.line_number << " " << i.type << " " << i.token << std::endl;
+    }
 }
 
 
