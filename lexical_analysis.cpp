@@ -288,7 +288,7 @@ void Lexical_Analysis::start_search(char initial, std::string &current_node, int
     }
     // 行检测标记右移一位
     index++;
-    // 清楚目前节点（应该可删，因为在上面有更新）
+    // 清除目前节点（应该可删，因为在上面有更新）
     current_node.clear();
     // 新建一条结果记录
     Result new_result;
